@@ -1,3 +1,31 @@
+<?php
+  require_once('../classes/database.php');
+  $con = new database();
+ 
+  if(isset($_POST['add_borrower'])){
+    // 1. Collect
+$Borrower_firstname = $_POST['borrower_firstname'];
+$Borrower_lastname = $_POST['borrower_lastname'];
+$Borrower_email = $_POST['borrower_email'];
+$Username = $Borrower_email;
+$Borrower_phone = $_POST['borrower_phone_number'];
+$isActive = $_POST['is_active'];
+$temp_password = $_POST['temp_password'];
+ 
+    // 2.
+    $User_password_hash = password_hash($temp_password,PASSWORD_DEFAULT);
+ 
+    // 3.
+    $User_ID = $con->insertUser($Username, $User_password_hash, $isActive);
+
+    // 4.
+    $Borrower_ID = $con->insertBorrowers($Borrower_firstname, $Borrower_lastname, $Borrower_email, $Borrower_phone, $isActive);
+
+    $con->insertBorrowerUser($Borrower_ID, $User_ID);
+  }
+
+?>
+ 
 <!doctype html>
 <html lang="en">
 <head>
@@ -6,6 +34,7 @@
   <title>Borrowers — Admin</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../bootstrap-5.3.3-dist/css/bootstrap.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
@@ -29,7 +58,7 @@
     </div>
   </div>
 </nav>
-
+ 
 <main class="container py-4">
   <div class="row g-3">
     <div class="col-12 col-lg-12">
@@ -44,7 +73,7 @@
             <button class="btn btn-outline-secondary">Search</button>
           </div>
         </div>
-
+ 
         <div class="table-responsive">
           <table class="table table-sm align-middle">
             <thead class="table-light">
@@ -86,7 +115,6 @@
             </tbody>
           </table>
         </div>
-
         <div class="small-muted mt-2">
           Rule reminder: each borrower must have exactly one account (BorrowerUser 1-to-1 mapping).
         </div>
@@ -98,7 +126,7 @@
           <div class="card p-4 h-100">
             <h5 class="mb-1">Register Borrower (with Account)</h5>
             <p class="small-muted mb-3">Creates <b>Borrowers</b> + <b>Users</b> + <b>BorrowerUser</b>.</p>
-
+ 
             <!-- Later in PHP: action="../php/borrowers/register.php" method="POST" -->
             <form action="#" method="POST">
               <div class="row g-2">
@@ -111,7 +139,7 @@
                   <input class="form-control" name="borrower_lastname" required>
                 </div>
                 <div class="col-12">
-                  <label class="form-label">Email (also username)</label>
+                  <label class="form-label">Email (also Username)</label>
                   <input class="form-control" name="borrower_email" type="email" required>
                 </div>
                 <div class="col-12">
@@ -129,21 +157,21 @@
                     <option value="0">No</option>
                   </select>
                 </div>
-
+ 
                 <hr class="my-2">
-
+ 
                 <div class="col-12">
                   <label class="form-label">Temporary Password</label>
                   <input class="form-control" name="temp_password" type="password" required>
                   <div class="small-muted mt-1">In PHP: hash this and store in Users.password_hash</div>
                 </div>
               </div>
-
-              <button class="btn btn-primary w-100 mt-3" type="submit">Create Borrower Account</button>
+ 
+              <button name="add_borrower" class="btn btn-primary w-100 mt-3" type="submit">Create Borrower Account</button>
             </form>
           </div>
         </div>
-
+ 
         <div class="col-12 col-lg-6">
           <div class="card p-4 h-100">
             <h6 class="mb-2">Add Borrower Address</h6>
@@ -200,11 +228,11 @@
         </div>
       </div>
     </div>
-
-    
+ 
+   
   </div>
 </main>
-
+ 
 <!-- Reset Password Modal (UI only) -->
 <div class="modal fade" id="resetPassModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
@@ -231,7 +259,7 @@
     </div>
   </div>
 </div>
-
+ 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
